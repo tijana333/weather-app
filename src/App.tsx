@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import DailyForecast from "./DailyForecast";
 
 interface WeatherData {
   name: string;
@@ -19,8 +20,25 @@ interface WeatherData {
   }>;
 }
 
+interface ForecastItem {
+  dt_txt: string;
+  main: {
+    temp: number;
+  };
+  weather: Array<{
+    description: string;
+  }>;
+}
+
+interface ForecastData {
+  day: string;
+  temp: number;
+  description: string;
+}
+
 const App: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [forecastData, setForecastData] = useState<ForecastData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +59,29 @@ const App: React.FC = () => {
       );
       console.log(response.data);
       setWeatherData(response.data);
+
+      const forecastResponse = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast`,
+        {
+          params: {
+            lat: lat,
+            lon: lon,
+            appid: process.env.REACT_APP_OPENWEATHER_API_KEY,
+            units: "metric",
+          },
+        }
+      );
+
+      const dailyData = forecastResponse.data.list
+        .filter((_: ForecastItem, index: number) => index % 8 === 0)
+        .map((item: ForecastItem) => ({
+          day: new Date(item.dt_txt).toLocaleDateString("en-US", {
+            weekday: "long",
+          }),
+          temp: item.main.temp,
+          description: item.weather[0].description,
+        }));
+      setForecastData(dailyData);
     } catch (error) {
       console.error("Error fetching weather data: ", error);
       setError("Failed to fetch weather data.");
@@ -61,9 +102,21 @@ const App: React.FC = () => {
       {weatherData && (
         <div>
           <h1>{weatherData.name}</h1>
-          <p>{weatherData.main.temp} °C</p>
+          <p>Current Temperature: {weatherData.main.temp} °C</p>
         </div>
       )}
+
+      <h2>5-Day Forecast</h2>
+      <div>
+        {forecastData.map((data, index) => (
+          <DailyForecast
+            key={index}
+            day={data.day}
+            temp={data.temp}
+            description={data.description}
+          />
+        ))}
+      </div>
     </div>
   );
 };
