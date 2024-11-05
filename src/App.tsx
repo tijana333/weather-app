@@ -11,7 +11,15 @@ const App: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=YOUR_API_KEY&units=metric`
+        `https://api.openweathermap.org/data/2.5/weather`,
+        {
+          params: {
+            lat: lat,
+            lon: lon,
+            appid: "f6e6daedeed6f9f36a6d76922062e22f",
+            units: "metric",
+          },
+        }
       );
       setWeatherData(response.data);
     } catch (error) {
@@ -21,27 +29,6 @@ const App: React.FC = () => {
       setLoading(false);
     }
   };
-  //     setLoading(true);
-  //     setError(null);
-  //     const response = await axios.get(
-  //       `https://api.openweathermap.org/data/2.5/onecall`,
-  //       {
-  //         params: {
-  //           lat: lat,
-  //           lon: lon,
-  //           exclude: "minutely,hourly",
-  //           appid: "f6e6daedeed6f9f36a6d76922062e22f",
-  //           units: "metric",
-  //         },
-  //       }
-  //     );
-  //    setWeatherData(response.data);
-  //   } cathc(error) {
-  //     setError("Error");
-  //   }finally {
-  //     setLoading(false);
-  //   }
-  // };
   useEffect(() => {
     const lat = 44.7866;
     const lon = 20.4489;
