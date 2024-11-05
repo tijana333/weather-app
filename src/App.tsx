@@ -1,26 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function App() {
+const App: React.FC = () => {
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchWeater = async (lat: number, lon: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=YOUR_API_KEY&units=metric`
+      );
+      setWeatherData(response.data);
+    } catch (error) {
+      console.error("Error fetching weather data: ", error);
+      setError("Failed to fetch weather data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  //     setLoading(true);
+  //     setError(null);
+  //     const response = await axios.get(
+  //       `https://api.openweathermap.org/data/2.5/onecall`,
+  //       {
+  //         params: {
+  //           lat: lat,
+  //           lon: lon,
+  //           exclude: "minutely,hourly",
+  //           appid: "f6e6daedeed6f9f36a6d76922062e22f",
+  //           units: "metric",
+  //         },
+  //       }
+  //     );
+  //    setWeatherData(response.data);
+  //   } cathc(error) {
+  //     setError("Error");
+  //   }finally {
+  //     setLoading(false);
+  //   }
+  // };
+  useEffect(() => {
+    const lat = 44.7866;
+    const lon = 20.4489;
+    fetchWeater(lat, lon);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {loading && <div> Loading...</div>}
+      {error && <div> {error} </div>}
+      {weatherData && (
+        <div>
+          <h1>{weatherData.name}</h1>
+          <p>{weatherData.main.temp} °C</p>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
