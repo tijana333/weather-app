@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWeater = async (lat: number, lon: number) => {
+  const fetchWeather = async (lat: number, lon: number) => {
     try {
       setLoading(true);
       setError(null);
@@ -58,6 +58,7 @@ const App: React.FC = () => {
         }
       );
       console.log(response.data);
+      console.log(process.env.REACT_APP_OPENWEATHER_API_KEY);
       setWeatherData(response.data);
 
       const forecastResponse = await axios.get(
@@ -92,7 +93,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const lat = 44.7866;
     const lon = 20.4489;
-    fetchWeater(lat, lon);
+    fetchWeather(lat, lon);
   }, []);
 
   return (
