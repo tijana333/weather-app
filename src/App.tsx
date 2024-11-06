@@ -18,10 +18,23 @@ interface WeatherData {
     description: string;
     icon: string;
   }>;
+  wind: {
+    speed: number;
+  };
 }
 
 interface ForecastItem {
   dt_txt: string;
+  main: {
+    temp: number;
+  };
+  weather: Array<{
+    description: string;
+  }>;
+}
+
+interface HourlyForecastItem {
+  dt: number;
   main: {
     temp: number;
   };
@@ -39,6 +52,9 @@ interface ForecastData {
 const App: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [forecastData, setForecastData] = useState<ForecastData[]>([]);
+  const [hourlyForecast, setHourlyForecast] = useState<HourlyForecastItem[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,6 +88,7 @@ const App: React.FC = () => {
           },
         }
       );
+      console.log(forecastResponse.data.list);
 
       const dailyData = forecastResponse.data.list
         .filter((_: ForecastItem, index: number) => index % 8 === 0)
@@ -83,6 +100,15 @@ const App: React.FC = () => {
           description: item.weather[0].description,
         }));
       setForecastData(dailyData);
+
+      const hourlyData = forecastResponse.data.list
+        .slice(0, 5)
+        .map((item: HourlyForecastItem) => ({
+          dt: item.dt,
+          temp: item.main?.temp,
+          description: item.weather?.[0]?.description,
+        }));
+      setHourlyForecast(hourlyData);
     } catch (error) {
       console.error("Error fetching weather data: ", error);
       setError("Failed to fetch weather data.");
@@ -104,8 +130,32 @@ const App: React.FC = () => {
         <div>
           <h1>{weatherData.name}</h1>
           <p>Current Temperature: {weatherData.main.temp} °C</p>
+          <p>Humidity: {weatherData.main.humidity} %</p>
+          <p>Wind Speed: {weatherData.wind.speed} m/s</p>
+          <p>{weatherData.weather[0].description}</p>
+          <img
+            src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`}
+            alt="weather icon"
+          />
         </div>
       )}
+      <h2>Hourly Forecast</h2>
+      <div>
+        {hourlyForecast.map((data, index) => (
+          <div
+            key={index}
+            style={{
+              marginBottom: "10px",
+              border: "1px solid #ccc",
+              padding: "10px",
+            }}
+          >
+            <h4>{new Date(data.dt * 1000).toLocaleTimeString()}</h4>
+            <p>Temperature: {data.temp} °C</p>
+            <p> {data.description}</p>
+          </div>
+        ))}
+      </div>
 
       <h2>5-Day Forecast</h2>
       <div>
