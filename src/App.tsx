@@ -40,6 +40,7 @@ interface HourlyForecastItem {
   };
   weather: Array<{
     description: string;
+    icon: string;
   }>;
 }
 
@@ -122,6 +123,13 @@ const App: React.FC = () => {
     fetchWeather(lat, lon);
   }, []);
 
+  if (!weatherData) {
+    return <div>Loading...</div>;
+  }
+  if (hourlyForecast.length === 0) {
+    return <div>Loading hourly forecast...</div>;
+  }
+
   return (
     <div>
       {loading && <div> Loading...</div>}
@@ -151,8 +159,20 @@ const App: React.FC = () => {
             }}
           >
             <h4>{new Date(data.dt * 1000).toLocaleTimeString()}</h4>
-            <p>Temperature: {data.temp} °C</p>
-            <p> {data.description}</p>
+            <p>Temperature: {data.main?.temp ? data.main.temp : "N/A"} °C</p>
+            <p>
+              {data.weather && data.weather.length > 0
+                ? data.weather[0].description
+                : "Nema podataka o vremenu"}{" "}
+            </p>
+            <img
+              src={
+                data.weather && data.weather.length > 0
+                  ? `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`
+                  : ""
+              }
+              alt="weather icon"
+            />
           </div>
         ))}
       </div>
