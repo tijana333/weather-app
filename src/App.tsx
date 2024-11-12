@@ -53,9 +53,7 @@ interface ForecastData {
 const App: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [forecastData, setForecastData] = useState<ForecastData[]>([]);
-  const [hourlyForecast, setHourlyForecast] = useState<HourlyForecastItem[]>(
-    []
-  );
+  const [hourlyForecast, setHourlyForecast] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -159,18 +157,10 @@ const App: React.FC = () => {
             }}
           >
             <h4>{new Date(data.dt * 1000).toLocaleTimeString()}</h4>
-            <p>Temperature: {data.main?.temp ? data.main.temp : "N/A"} °C</p>
-            <p>
-              {data.weather && data.weather.length > 0
-                ? data.weather[0].description
-                : "Nema podataka o vremenu"}{" "}
-            </p>
+            <p>Temperature: {data.temp} °C</p>
+            <p>{data.description || "Nema podataka"}</p>
             <img
-              src={
-                data.weather && data.weather.length > 0
-                  ? `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`
-                  : ""
-              }
+              src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`} //ne znam da li je ovo dobro, sa icon.data ne radi
               alt="weather icon"
             />
           </div>
