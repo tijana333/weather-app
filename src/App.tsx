@@ -115,10 +115,21 @@ const App: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const getGeolocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+        },
+        () => setError("Please, enable location access")
+      );
+    } else {
+      setError("Error! Geolocation is not support!");
+    }
+  };
   useEffect(() => {
-    const lat = 44.7866;
-    const lon = 20.4489;
-    fetchWeather(lat, lon);
+    getGeolocation();
   }, []);
 
   if (!weatherData) {
@@ -145,6 +156,9 @@ const App: React.FC = () => {
           />
         </div>
       )}
+      <button onClick={getGeolocation}>
+        Show time for my current location
+      </button>
       <h2>Hourly Forecast</h2>
       <div>
         {hourlyForecast.map((data, index) => (
@@ -166,7 +180,7 @@ const App: React.FC = () => {
           </div>
         ))}
       </div>
-
+      console.log(weatherData.weather[0].icon)
       <h2>5-Day Forecast</h2>
       <div>
         {forecastData.map((data, index) => (
