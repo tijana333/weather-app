@@ -121,6 +121,7 @@ const App: React.FC = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          fetchWeather(latitude, longitude);
         },
         () => setError("Please, enable location access")
       );
@@ -180,7 +181,7 @@ const App: React.FC = () => {
           </div>
         ))}
       </div>
-      console.log(weatherData.weather[0].icon)
+
       <h2>5-Day Forecast</h2>
       <div>
         {forecastData.map((data, index) => (
