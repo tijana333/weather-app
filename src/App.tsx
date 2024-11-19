@@ -57,6 +57,9 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [query, setQuery] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
   const fetchWeather = async (lat: number, lon: number) => {
     try {
       setLoading(true);
@@ -116,6 +119,49 @@ const App: React.FC = () => {
     }
   };
 
+  const fetchCitySuggestions = async (input: string) => {
+    if (input.length < 3) return;
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/geo/1.0/direct`,
+        {
+          params: {
+            q: input,
+            limit: 5,
+            appid: process.env.REACT_APP_OPENWEATHER_API_KEY,
+          },
+        }
+      );
+
+      const cities = response.data.map((city: any) => city.name);
+      setSuggestions(cities);
+    } catch (err) {
+      console.log("Error fetching city suggestions:", err);
+    }
+  };
+
+  const handleCitySelect = async (city: string) => {
+    setQuery(city);
+    setSuggestions([]);
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/geo/1.0/direct`,
+        {
+          params: {
+            q: city,
+            limit: 1,
+            appid: process.env.REACT_APP_OPENWEATHER_API_KEY,
+          },
+        }
+      );
+
+      const { lat, lon } = response.data[0];
+      fetchWeather(lat, lon);
+    } catch (err) {
+      setError("Failed to fetch city data.");
+    }
+  };
+
   const getGeolocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -142,24 +188,52 @@ const App: React.FC = () => {
 
   return (
     <div>
-      {loading && <div> Loading...</div>}
-      {error && <div> {error} </div>}
-      {weatherData && (
-        <div>
-          <h1>{weatherData.name}</h1>
-          <p>Current Temperature: {weatherData.main.temp} °C</p>
-          <p>Humidity: {weatherData.main.humidity} %</p>
-          <p>Wind Speed: {weatherData.wind.speed} m/s</p>
-          <p>{weatherData.weather[0].description}</p>
-          <img
-            src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`}
-            alt="weather icon"
-          />
-        </div>
-      )}
-      <button onClick={getGeolocation}>
-        Show time for my current location
-      </button>
+      <h1>Weather App</h1>
+      <div>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            fetchCitySuggestions(e.target.value);
+          }}
+          placeholder="Enter city name"
+        />
+        {suggestions.length > 0 && (
+          <ul>
+            {suggestions.map((city, index) => (
+              <li
+                key={index}
+                onClick={() => handleCitySelect(city)}
+                style={{ cursor: "pointer" }}
+              >
+                {city}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div>
+        {loading && <div> Loading...</div>}
+        {error && <div> {error} </div>}
+        {weatherData && (
+          <div>
+            <h1>{weatherData.name}</h1>
+            <p>Current Temperature: {weatherData.main.temp} °C</p>
+            <p>Humidity: {weatherData.main.humidity} %</p>
+            <p>Wind Speed: {weatherData.wind.speed} m/s</p>
+            <p>{weatherData.weather[0].description}</p>
+            <img
+              src={`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`}
+              alt="weather icon"
+            />
+          </div>
+        )}
+        <button onClick={getGeolocation}>
+          Show time for my current location
+        </button>
+      </div>
       <h2>Hourly Forecast</h2>
       <div>
         {hourlyForecast.map((data, index) => (
