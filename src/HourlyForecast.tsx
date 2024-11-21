@@ -35,4 +35,4 @@ const HourlyForecast: React.FC<HourlyForecastProps> = ({ hourlyData }) => {
   );
 };
 
-export default HouryForecast;
+export default HourlyForecast;

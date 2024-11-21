@@ -2,13 +2,19 @@ import React from "react";
 
 interface FiveDayForecastProps {
   forecastData: Array<{
-    day: string;
-    temp: number;
-    description: string;
+    dt_txt: string;
+    main: {
+      temp: number;
+      humidity: number;
+    };
+    weather: Array<{
+      description: string;
+      icon: string;
+    }>;
   }>;
 }
 
-const FiveDayForecast: React.FC<FiveDayForecastProps> = ({ forecastData }) => {
+const FiveDayForecast: React.FC<data:FiveDayForecastProps> = ({ data }) => {
   return (
     <div>
       <h2>5-Day Forecast</h2>
