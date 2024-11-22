@@ -7,11 +7,12 @@ interface CurrentWeatherProps {
     windSpeed: number;
     description: string;
     icon: string;
+    name: string;
   };
 }
 
 const CurrentWeather: React.FC<CurrentWeatherProps> = ({ data }) => {
-  const { temp, humidity, windSpeed, description, icon } = data;
+  const { temp, humidity, windSpeed, description, icon, name } = data;
 
   return (
     <div>
